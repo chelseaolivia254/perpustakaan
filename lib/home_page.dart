@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:perpustakaan/insert.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookListPage extends StatefulWidget {
@@ -32,54 +33,77 @@ class _BookListPageState extends State<BookListPage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Daftar Buku'),
+        backgroundColor: Colors.cyan[600],
+        title: const Text('Daftar Buku', style: TextStyle(color: Colors.white),),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white,),
             onPressed: fetchBook,
           ),
         ],
       ),
       body: Buku.isEmpty
-      ? const Center(child: CircularProgressIndicator())
-      : ListView.builder(
-        itemCount:Buku.length,
-        itemBuilder: (context, index) {
-          final book = Buku[index];
-          return ListTile(
-            title: Text(book['judul'] ?? 'No Judul', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            subtitle: Column(
-              children: [
-                Text(book['penulis'] ?? 'No Penulis', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 14)),
-                Text(book['deskripsi'] ?? 'No Deskripsi', style: TextStyle(fontSize: 12)),
-              ],
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: Buku.length,
+              itemBuilder: (context, index) {
+                final book = Buku[index];
+                return Card(
+                  color: Colors.blue[50],
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: ListTile(
+                    title: Text(book['judul'] ?? 'Judul tidak tersedia'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book['penulis'] ?? 'Penulis Tidak Tersedia',
+                          style: const TextStyle(
+                              fontStyle: FontStyle.italic, fontSize: 14),
+                        ),
+                        Text(
+                          book['deskripsi'] ?? 'Deskripsi Tidak Tersedia',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            // Tambahkan logika navigasi ke halaman edit
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            // Tambahkan logika hapus buku
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Tombol edit
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue,),
-                  onPressed: () {
-                    Navigator.pop(
-                      context,
-                    );
-                  }
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red,),
-                  onPressed: () {
-                    Navigator.pop(
-                      context,
-                    );
-                  },
-                )
-              ],
-            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddBookPage()),
           );
-        }
-      )
+          if (result == true) {
+            fetchBook(); // Refresh data jika buku berhasil ditambahkan
+          }
+        },
+        backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.add, color: Colors.white,),
+      ),
     );
   }
 }
